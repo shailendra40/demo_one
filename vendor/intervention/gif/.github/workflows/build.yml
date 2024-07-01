@@ -1,0 +1,30 @@
+name: Tests
+
+on: [push]
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        php: ['8.0', '8.1', '8.2']
+    name: Testing on PHP ${{ matrix.php }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php }}
+          extensions: mbstring,bcmath
+          tools: composer
+
+      - name: Install PHP dependencies
+        run: composer install -q
+
+      - name: Run phpunit
+        run: vendor/bin/phpunit
+
+      - name: Run phpstan
+        run: vendor/bin/phpstan analyze --no-progress --level=4 src/
